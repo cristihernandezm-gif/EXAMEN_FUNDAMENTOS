@@ -65,7 +65,7 @@ def val_duracion(duracion):
         return False
     
 def val_horario(horario):
-    if horario in ['mañana', 'tarde', 'noche', 'libre']:
+    if horario.strip().lower() in ['mañana', 'tarde', 'noche', 'libre']:
         return True
     else:
         return False
@@ -95,10 +95,10 @@ def incluye_clases(incluye):
 #Recibe el tipo de plan como parámetro, no retorna ningún valor y muestra el resultado directamente por pantalla
 
 def cupos_tipo(tipo_buscar):
-    for codigo_plan, plan in planes.items():
-        if plan[1] == tipo_buscar:
-            cupos_disponibles = inscripciones[codigo_plan][1]
-            print(f"Plan: {plan[0]}, Cupos disponibles: {cupos_disponibles[2]}")
+        for codigo_plan, plan in planes.items():
+            if plan[1] == tipo_buscar:
+                cupos_disponibles = inscripciones[codigo_plan][1]
+                print(f"Plan: {plan[0]}, Cupos disponibles: {cupos_disponibles}")
 
 def buscar_codigo(codigo):
     for cod, plan in planes.items():
@@ -147,56 +147,60 @@ while True:
         else:
         
             cupos_disponibles = cupos_tipo(busco_cupos_plan)
-            
 
     elif op == 2:
     #busqueda de planes por rango de precio
-        precio_min = float(input("Ingrese el precio mínimo: "))
-        precio_max = float(input("Ingrese el precio máximo: "))
-        if precio_min > precio_max:
-            print("El precio mínimo no puede ser mayor que el precio máximo.")
-        else:
-            for codigo_plan, plan in inscripciones.items():
-                precio_plan = inscripciones[codigo_plan][0]
-                if precio_min <= precio_plan <= precio_max:
-                    busqueda_precio(precio_min, precio_max, codigo_plan, plan)
-            
+        try:
+            precio_min = float(input("Ingrese el precio mínimo: "))
+            precio_max = float(input("Ingrese el precio máximo: "))
+            if precio_min > precio_max:
+                print("El precio mínimo no puede ser mayor que el precio máximo.")
+            else:
+                for codigo_plan, plan in inscripciones.items():
+                    precio_plan = inscripciones[codigo_plan][0]
+                    if precio_min <= precio_plan <= precio_max:
+                        busqueda_precio(precio_min, precio_max, codigo_plan, plan)
+        except ValueError:
+            print("ERROR: ingrese valores numéricos válidos para los precios.")
     elif op == 3:
     #Actualizar precio de plan
         while True:
             codigo_plan = input("Ingrese el código del plan a actualizar: ")
-            if codigo_plan in inscripciones:
-                nuevo_precio = float(input("Ingrese el nuevo precio: "))
-                inscripciones[codigo_plan][0] = nuevo_precio
-                print(f"Precio del plan {planes[codigo_plan][0]} actualizado a ${nuevo_precio}")
-            else:
-                print("Código de plan no válido.")
-                break
-            
-            precio_again=input("desea actualizar otro precio? (s/n): ")
-            if precio_again.lower() == 's':
-                continue
-            elif precio_again.lower() == 'n':
-                print("Saliendo de la actualización de precios.")
-                break
-            else:
-                print("Opción no válida. Saliendo de la actualización de precios.")
-                break
+            try:
+                if codigo_plan in inscripciones:
+                    nuevo_precio = float(input("Ingrese el nuevo precio: "))
+                    inscripciones[codigo_plan][0] = nuevo_precio
+                    print(f"Precio del plan {planes[codigo_plan][0]} actualizado a ${nuevo_precio}")
+                else:
+                    print("Código de plan no válido.")
+                    break
+                
+                precio_again=input("desea actualizar otro precio? (s/n): ")
+                if precio_again.lower() == 's':
+                    continue
+                elif precio_again.lower() == 'n':
+                    print("Saliendo de la actualización de precios.")
+                    break
+                else:
+                    print("Opción no válida. Saliendo de la actualización de precios.")
+                    break
+            except ValueError:
+                print("ERROR: ingrese un valor numérico válido para el precio.")
     elif op == 4:
     #Agregar plan
         codigo_nuevo = input("Ingrese el código del nuevo plan: ")
         codigo_buscado= buscar_codigo(codigo_nuevo)
 
-        if codigo_buscado != False:
+        if codigo_buscado != True:
             nombre_nuevo = input("Ingrese el nombre del nuevo plan: ")
             tipo_nuevo = input("Ingrese el tipo de plan (mensual/trimestral/anual): ")
             val_duracion_nuevo = input("Ingrese la duración del nuevo plan: ")
             horario_nuevo = input("Ingrese el horario (mañana/tarde/noche/libre): ")
-            cupos_nuevos = int(input("Ingrese la cantidad de cupos disponibles: "))
             acceso_piscina_nuevo = input("¿Incluye acceso a piscina? (s/n): ")
             incluye_clases_nuevo = input("¿Incluye clases? (s/n): ")
-            precio_nuevo = float(input("Ingrese el precio del nuevo plan: "))
-
+            cupos_nuevos = input("Ingrese la cantidad de cupos disponibles: ")
+            precio_nuevo = input("Ingrese el precio del nuevo plan: ")
+            
             vali_p=val_precio(precio_nuevo)
             vali_nom=val_nombre(nombre_nuevo)
             vali_cod=val_codigo(codigo_nuevo)
@@ -208,40 +212,46 @@ while True:
             incluye_c=incluye_clases(incluye_clases_nuevo)
 
             if (vali_t and vali_c and vali_h and vali_d and vali_nom and vali_cod and vali_p) == True:
+                
 
-                planes[codigo_nuevo] = [nombre_nuevo, int(val_duracion_nuevo), int(cupos_nuevos), acceso_p, incluye_c, horario_nuevo]
+                planes[codigo_nuevo] = [nombre_nuevo,tipo_nuevo , int(val_duracion_nuevo) , acceso_p, incluye_c, horario_nuevo]
+                
                 inscripciones[codigo_nuevo] = [float(precio_nuevo), int(cupos_nuevos)]
+                
+
                 print(f"Plan {nombre_nuevo} agregado exitosamente.")
-            elif vali_t==False:
+            
+            if vali_t==False:
                 print("Duración no válida. Debe ser mensual, trimestral o anual.")
-            elif vali_c==False:
+            if vali_c==False:
                 print("Cantidad de cupos no válida. Debe ser un número entero mayor o igual a 0.")
-            elif vali_h==False:
+            if vali_h==False:
                 print("Horario no válido. Debe ser mañana, tarde, noche o libre.")
-            elif vali_d==False:
+            if vali_d==False:
                 print("Duración no válida. Debe ser un número mayor a 0.")
-            elif vali_nom==False:
+            if vali_nom==False:
                 print("Nombre no válido. Debe ser un nombre no vacío.")
-            elif vali_cod==False:
+            if vali_cod==False:
                 print("Código no válido. Debe ser un código único.")
-            elif vali_p==False:
+            if vali_p==False:
                 print("Precio no válido. Debe ser un número mayor a 0.")
-            else:
+            if (vali_t and vali_c and vali_h and vali_d and vali_nom and vali_cod and vali_p) == False:
                 print("Datos no válidos. No se pudo agregar el plan.")
+        
         else:
             print("Código de plan ya existe. Debe ser un código único.")
     elif op == 5:
     #Eliminar plan
         codigo_eliminar = input("Ingrese el código del plan a eliminar: ")
-        for cod, inscripciones in inscripciones.items():
-            if inscripciones[0] == codigo_eliminar:
-                del planes[codigo_eliminar]
-                del inscripciones[codigo_eliminar]
-                print(f"Plan con código {codigo_eliminar} eliminado exitosamente.")
-                break
+        if codigo_eliminar in planes:
+            for cod, plan in planes.items():
+                if cod == codigo_eliminar:
+                    del planes[codigo_eliminar]
+                    del inscripciones[codigo_eliminar]
+                    print(f"Plan {plan[0]} eliminado exitosamente.")
+                    break
         else:
-            print("Código de plan no válido.")
-                
+            print("ERROR: El código de plan ingresado no existe.")
     elif op == 6:
         print("Saliendo del programa...")
         break

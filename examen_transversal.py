@@ -95,9 +95,10 @@ def incluye_clases(incluye):
 #Recibe el tipo de plan como parámetro, no retorna ningún valor y muestra el resultado directamente por pantalla
 
 def cupos_tipo(tipo_buscar):
-    for posi, plan in planes.items():
+    for codigo_plan, plan in planes.items():
         if plan[1] == tipo_buscar:
-            return inscripciones[posi][1]
+            cupos_disponibles = inscripciones[codigo_plan][1]
+            print(f"Plan: {plan[0]}, Cupos disponibles: {cupos_disponibles[2]}")
 
 def buscar_codigo(codigo):
     for cod, plan in planes.items():
@@ -141,10 +142,13 @@ while True:
     #cupos por tipo de plan
     if op == 1:
         busco_cupos_plan =  input("Ingrese el plan para ver los cupos disponibles(mensual,trimestral,anual): ")
-        cupos_disponibles = cupos_tipo(busco_cupos_plan)
-        for codigo_plan, plan in inscripciones.items():
-            if busco_cupos_plan == planes[codigo_plan][1]:
-                print(f"Plan: {planes[codigo_plan][0]}, Cupos disponibles: {cupos_disponibles}")
+        if busco_cupos_plan not in ("mensual", "trimestral", "anual"):
+            print("Tipo de plan no válido. Debe ser mensual, trimestral o anual.")
+        else:
+        
+            cupos_disponibles = cupos_tipo(busco_cupos_plan)
+            
+
     elif op == 2:
     #busqueda de planes por rango de precio
         precio_min = float(input("Ingrese el precio mínimo: "))
@@ -159,23 +163,31 @@ while True:
             
     elif op == 3:
     #Actualizar precio de plan
-        codigo_plan = input("Ingrese el código del plan a actualizar: ")
-        if codigo_plan in inscripciones:
-            nuevo_precio = float(input("Ingrese el nuevo precio: "))
-            inscripciones[codigo_plan][0] = nuevo_precio
-            print(f"Precio del plan {planes[codigo_plan][0]} actualizado a ${nuevo_precio}")
-        else:
-            print("Código de plan no válido.")
-        
-        precio_again=input("desea actualizar otro precio? (s/n): ")
-        if precio_again.lower() == 's':
-            continue
-        else:
-            print("Saliendo de la actualización de precios.")
+        while True:
+            codigo_plan = input("Ingrese el código del plan a actualizar: ")
+            if codigo_plan in inscripciones:
+                nuevo_precio = float(input("Ingrese el nuevo precio: "))
+                inscripciones[codigo_plan][0] = nuevo_precio
+                print(f"Precio del plan {planes[codigo_plan][0]} actualizado a ${nuevo_precio}")
+            else:
+                print("Código de plan no válido.")
+                break
+            
+            precio_again=input("desea actualizar otro precio? (s/n): ")
+            if precio_again.lower() == 's':
+                continue
+            elif precio_again.lower() == 'n':
+                print("Saliendo de la actualización de precios.")
+                break
+            else:
+                print("Opción no válida. Saliendo de la actualización de precios.")
+                break
     elif op == 4:
     #Agregar plan
         codigo_nuevo = input("Ingrese el código del nuevo plan: ")
-        if val_codigo(codigo_nuevo):
+        codigo_buscado= buscar_codigo(codigo_nuevo)
+
+        if codigo_buscado != False:
             nombre_nuevo = input("Ingrese el nombre del nuevo plan: ")
             tipo_nuevo = input("Ingrese el tipo de plan (mensual/trimestral/anual): ")
             val_duracion_nuevo = input("Ingrese la duración del nuevo plan: ")
